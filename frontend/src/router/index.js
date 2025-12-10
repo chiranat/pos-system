@@ -21,6 +21,17 @@ const router = createRouter({
       name: 'home',
       component: () => import('../views/HomeView.vue'),
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/kitchen',
+      name: 'kitchen',
+      component: () => import('../views/KitchenView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/menu',
+      name: 'customer-menu',
+      component: () => import('../views/CustomerMenuView.vue')
     }
   ]
 })

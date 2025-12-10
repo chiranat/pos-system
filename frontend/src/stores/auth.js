@@ -4,6 +4,12 @@ import { jwtDecode } from 'jwt-decode'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
 
+// Initialize axios header if token exists
+const token = localStorage.getItem('token')
+if (token) {
+  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+}
+
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     token: localStorage.getItem('token') || null,

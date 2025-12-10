@@ -12,12 +12,15 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "dining_sessions")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class DiningSession {
 
     @Id
@@ -28,6 +31,7 @@ public class DiningSession {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "table_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private TableEntity table;
 
     @Column(name = "access_token", nullable = false, unique = true)
