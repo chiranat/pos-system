@@ -1,6 +1,7 @@
 package com.chiranat.pos.controller;
 
 import com.chiranat.pos.dto.PaymentRequest;
+import com.chiranat.pos.dto.ReceiptDTO;
 import com.chiranat.pos.model.Transaction;
 import com.chiranat.pos.service.TransactionService;
 import lombok.RequiredArgsConstructor;
@@ -21,5 +22,10 @@ public class TransactionController {
     @PreAuthorize("hasRole('WAITER') or hasRole('ADMIN')")
     public ResponseEntity<Transaction> processPayment(@PathVariable UUID tableId, @RequestBody PaymentRequest request) {
         return ResponseEntity.ok(transactionService.processPayment(tableId, request));
+    }
+
+    @GetMapping("/{id}/receipt")
+    public ResponseEntity<ReceiptDTO> getReceipt(@PathVariable UUID id) {
+        return ResponseEntity.ok(transactionService.getReceipt(id));
     }
 }

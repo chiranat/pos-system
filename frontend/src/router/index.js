@@ -32,6 +32,18 @@ const router = createRouter({
       path: '/menu',
       name: 'customer-menu',
       component: () => import('../views/CustomerMenuView.vue')
+    },
+    {
+      path: '/admin/menu',
+      name: 'admin-menu',
+      component: () => import('../views/MenuView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/admin/reports',
+      name: 'admin-reports',
+      component: () => import('../views/DashboardView.vue'),
+      meta: { requiresAuth: true }
     }
   ]
 })

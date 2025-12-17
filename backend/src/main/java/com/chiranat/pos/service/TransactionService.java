@@ -1,6 +1,8 @@
 package com.chiranat.pos.service;
 
 import com.chiranat.pos.dto.PaymentRequest;
+import com.chiranat.pos.dto.ReceiptDTO;
+import com.chiranat.pos.dto.ReceiptItemDTO;
 import com.chiranat.pos.exception.ResourceNotFoundException;
 import com.chiranat.pos.model.*;
 import com.chiranat.pos.repository.DiningSessionRepository;
@@ -13,8 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -70,5 +75,54 @@ public class TransactionService {
         tableRepository.save(table);
 
         return transaction;
+    }
+
+    public ReceiptDTO getReceipt(UUID transactionId) {
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found: " + transactionId));
+
+        DiningSession session = transaction.getSession();
+        List<Order> orders = orderRepository.findBySessionId(session.getId());
+
+        // Flatten all order items
+        List<OrderItem> allItems = orders.stream()
+                .filter(order -> order.getStatus() != Order.OrderStatus.CANCELLED)
+                .flatMap(order -> order.getOrderItems().stream())
+                .collect(Collectors.toList());
+
+        // Group by product name to aggregate quantities
+        Map<String, List<OrderItem>> groupedItems = allItems.stream()
+                .collect(Collectors.groupingBy(item -> item.getProduct().getName()));
+
+        List<ReceiptItemDTO> receiptItems = new ArrayList<>();
+        
+        for (Map.Entry<String, List<OrderItem>> entry : groupedItems.entrySet()) {
+            String productName = entry.getKey();
+            List<OrderItem> items = entry.getValue();
+            
+            int totalQty = items.stream().mapToInt(OrderItem::getQuantity).sum();
+            BigDecimal totalPrice = items.stream()
+                    .map(OrderItem::getSubtotal)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            
+            // Assuming unit price is consistent, take the first one
+            BigDecimal unitPrice = items.isEmpty() ? BigDecimal.ZERO : items.get(0).getUnitPriceSnapshot();
+
+            receiptItems.add(ReceiptItemDTO.builder()
+                    .productName(productName)
+                    .quantity(totalQty)
+                    .price(unitPrice)
+                    .subtotal(totalPrice)
+                    .build());
+        }
+
+        return ReceiptDTO.builder()
+                .transactionId(transaction.getId())
+                .tableNumber(session.getTable().getTableNumber())
+                .paidAt(transaction.getPaidAt())
+                .paymentMethod(transaction.getPaymentMethod().name())
+                .items(receiptItems)
+                .totalAmount(transaction.getAmount())
+                .build();
     }
 }

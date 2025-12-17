@@ -34,6 +34,103 @@ export const useMenuStore = defineStore('menu', {
       } finally {
         this.loading = false
       }
+    },
+
+    // Admin Actions
+    async createCategory(category) {
+      try {
+        const response = await axios.post(`${API_URL}/api/admin/menu/categories`, category)
+        this.categories.push(response.data)
+        return response.data
+      } catch (err) {
+        throw err
+      }
+    },
+
+    async updateCategory(id, category) {
+      try {
+        const response = await axios.put(`${API_URL}/api/admin/menu/categories/${id}`, category)
+        const index = this.categories.findIndex(c => c.id === id)
+        if (index !== -1) {
+          this.categories[index] = response.data
+        }
+        return response.data
+      } catch (err) {
+        throw err
+      }
+    },
+
+    async deleteCategory(id) {
+      try {
+        await axios.delete(`${API_URL}/api/admin/menu/categories/${id}`)
+        this.categories = this.categories.filter(c => c.id !== id)
+      } catch (err) {
+        throw err
+      }
+    },
+
+    async createProduct(product) {
+      try {
+        const response = await axios.post(`${API_URL}/api/admin/menu/products`, product)
+        this.products.push(response.data)
+        return response.data
+      } catch (err) {
+        throw err
+      }
+    },
+
+    async updateProduct(id, product) {
+      try {
+        const response = await axios.put(`${API_URL}/api/admin/menu/products/${id}`, product)
+        const index = this.products.findIndex(p => p.id === id)
+        if (index !== -1) {
+          this.products[index] = response.data
+        }
+        return response.data
+      } catch (err) {
+        throw err
+      }
+    },
+
+    async deleteProduct(id) {
+      try {
+        await axios.delete(`${API_URL}/api/admin/menu/products/${id}`)
+        this.products = this.products.filter(p => p.id !== id)
+      } catch (err) {
+        throw err
+      }
+    },
+
+    async uploadImage(file) {
+      try {
+        const formData = new FormData()
+        formData.append('file', file)
+        const response = await axios.post(`${API_URL}/api/admin/upload`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+        return response.data.url
+      } catch (err) {
+        throw err
+      }
+    },
+
+    async fetchImages() {
+      try {
+        const response = await axios.get(`${API_URL}/api/admin/upload`)
+        return response.data
+      } catch (err) {
+        throw err
+      }
+    },
+
+    async deleteImage(fileName) {
+      try {
+        await axios.delete(`${API_URL}/api/admin/upload/${fileName}`)
+      } catch (err) {
+        throw err
+      }
     }
   }
 })

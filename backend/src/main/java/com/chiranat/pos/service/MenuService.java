@@ -33,4 +33,49 @@ public class MenuService {
     public List<Product> getAvailableProducts() {
         return productRepository.findByIsAvailableTrue();
     }
+
+    // Category CRUD
+    public Category createCategory(Category category) {
+        return categoryRepository.save(category);
+    }
+
+    public Category updateCategory(UUID id, Category categoryDetails) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        category.setName(categoryDetails.getName());
+        category.setSortOrder(categoryDetails.getSortOrder());
+        return categoryRepository.save(category);
+    }
+
+    public void deleteCategory(UUID id) {
+        categoryRepository.deleteById(id);
+    }
+
+    // Product CRUD
+    public Product getProduct(UUID id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+    }
+
+    public Product createProduct(Product product) {
+        return productRepository.save(product);
+    }
+
+    public Product updateProduct(UUID id, Product productDetails) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+        product.setName(productDetails.getName());
+        product.setDescription(productDetails.getDescription());
+        product.setPrice(productDetails.getPrice());
+        product.setImageUrl(productDetails.getImageUrl());
+        product.setIsAvailable(productDetails.getIsAvailable());
+        if (productDetails.getCategory() != null) {
+            product.setCategory(productDetails.getCategory());
+        }
+        return productRepository.save(product);
+    }
+
+    public void deleteProduct(UUID id) {
+        productRepository.deleteById(id);
+    }
 }

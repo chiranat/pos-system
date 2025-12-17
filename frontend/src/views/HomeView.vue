@@ -43,6 +43,24 @@
         </div>
         <div class="flex gap-3">
           <router-link 
+            to="/admin/reports" 
+            class="inline-flex items-center px-5 py-2.5 bg-white border border-slate-300 rounded-xl shadow-sm text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            Reports
+          </router-link>
+          <router-link 
+            to="/admin/menu" 
+            class="inline-flex items-center px-5 py-2.5 bg-white border border-slate-300 rounded-xl shadow-sm text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            Manage Menu
+          </router-link>
+          <router-link 
             to="/kitchen" 
             class="inline-flex items-center px-5 py-2.5 bg-indigo-600 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
           >
@@ -160,24 +178,12 @@
     </Modal>
 
     <!-- QR Code Modal -->
-    <Modal :isOpen="showQrModal" title="Table Opened Successfully" @close="showQrModal = false">
-      <div class="mt-2 flex flex-col items-center">
-        <p class="text-sm text-gray-500 mb-4">
-          Scan this QR code to order food
-        </p>
-        <img v-if="qrCodeUrl" :src="qrCodeUrl" alt="Table QR Code" class="w-64 h-64 border rounded-lg">
-        <p class="mt-4 text-xs text-gray-400 break-all text-center">{{ qrCodeUrl }}</p>
-      </div>
-      <template #footer>
-        <button 
-          type="button" 
-          class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
-          @click="showQrModal = false"
-        >
-          Done
-        </button>
-      </template>
-    </Modal>
+    <TableQrModal 
+      :isOpen="showQrModal" 
+      :qrCodeUrl="qrCodeUrl" 
+      :tableNumber="selectedTable?.tableNumber"
+      @close="showQrModal = false" 
+    />
 
     <!-- Table Details Modal -->
     <Modal :isOpen="showDetailsModal" title="Table Details" @close="showDetailsModal = false">
@@ -190,6 +196,32 @@
         <div class="mb-4">
           <p class="text-sm text-slate-500">Started at: {{ new Date(tableDetails.currentSession?.startTime).toLocaleTimeString() }}</p>
           <p class="text-sm text-slate-500">Customers: {{ tableDetails.currentSession?.customerCount }}</p>
+          <div class="mt-2 p-2 bg-slate-50 rounded border border-slate-200 flex justify-between items-center">
+            <div class="text-xs text-slate-500 truncate max-w-[200px]">
+              {{ tableDetails.currentSession?.qrCodeUrl }}
+            </div>
+            <button 
+              @click="viewQrCodeFromDetails"
+              class="text-xs bg-white border border-slate-300 px-2 py-1 rounded hover:bg-slate-50 text-indigo-600 font-medium"
+            >
+              Print QR
+            </button>
+          </div>
+
+          <div class="mt-2">
+            <p class="text-xs text-slate-500 mb-1">Customer URL:</p>
+            <div class="p-2 bg-slate-50 rounded border border-slate-200 flex justify-between items-center">
+              <div class="text-xs text-slate-500 truncate max-w-[200px]">
+                {{ getCustomerUrl(tableDetails.currentSession?.accessToken) }}
+              </div>
+              <button 
+                @click="copyToClipboard(getCustomerUrl(tableDetails.currentSession?.accessToken))"
+                class="text-xs bg-white border border-slate-300 px-2 py-1 rounded hover:bg-slate-50 text-indigo-600 font-medium"
+              >
+                Copy
+              </button>
+            </div>
+          </div>
         </div>
 
         <div class="border-t border-slate-100 py-4">
@@ -326,6 +358,12 @@
         </button>
       </template>
     </Modal>
+    <!-- Receipt Modal -->
+    <ReceiptModal 
+      :isOpen="showReceiptModal" 
+      :receipt="currentReceipt" 
+      @close="showReceiptModal = false" 
+    />
   </div>
 </template>
 
@@ -336,6 +374,11 @@ import { useTableStore } from '../stores/table'
 import { useRouter } from 'vue-router'
 import TableCard from '../components/TableCard.vue'
 import Modal from '../components/Modal.vue'
+import ReceiptModal from '../components/ReceiptModal.vue'
+import TableQrModal from '../components/TableQrModal.vue'
+import axios from 'axios'
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
 
 const authStore = useAuthStore()
 const tableStore = useTableStore()
@@ -346,11 +389,13 @@ const showCloseModal = ref(false)
 const showQrModal = ref(false)
 const showDetailsModal = ref(false)
 const showPaymentModal = ref(false)
+const showReceiptModal = ref(false)
 const selectedTable = ref(null)
 const customerCount = ref(1)
 const qrCodeUrl = ref(null)
 const tableDetails = ref(null)
 const selectedPaymentMethod = ref('CASH')
+const currentReceipt = ref(null)
 
 onMounted(() => {
   tableStore.fetchTables()
@@ -410,9 +455,13 @@ const confirmPayment = async () => {
   if (!selectedTable.value) return
 
   try {
-    await tableStore.processPayment(selectedTable.value.id, selectedPaymentMethod.value)
+    const transaction = await tableStore.processPayment(selectedTable.value.id, selectedPaymentMethod.value)
     showPaymentModal.value = false
-    alert('Payment successful! Table is now available.')
+    
+    // Fetch receipt details
+    const response = await axios.get(`${API_URL}/api/transactions/${transaction.id}/receipt`)
+    currentReceipt.value = response.data
+    showReceiptModal.value = true
   } catch (error) {
     console.error('Failed to process payment:', error)
     alert('Payment failed')
@@ -424,6 +473,29 @@ const viewQrCode = () => {
     qrCodeUrl.value = selectedTable.value.currentSession.qrCodeUrl
     showCloseModal.value = false
     showQrModal.value = true
+  }
+}
+
+const viewQrCodeFromDetails = () => {
+  if (tableDetails.value?.currentSession?.qrCodeUrl) {
+    qrCodeUrl.value = tableDetails.value.currentSession.qrCodeUrl
+    selectedTable.value = tableDetails.value.table // Ensure selectedTable is set for the modal
+    showDetailsModal.value = false
+    showQrModal.value = true
+  }
+}
+
+const getCustomerUrl = (token) => {
+  return `${window.location.origin}/menu?token=${token}`
+}
+
+const copyToClipboard = async (text) => {
+  try {
+    await navigator.clipboard.writeText(text)
+    alert('URL copied to clipboard!')
+  } catch (err) {
+    console.error('Failed to copy:', err)
+    alert('Failed to copy URL')
   }
 }
 </script>
