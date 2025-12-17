@@ -55,6 +55,14 @@ CREATE TABLE tables (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Insert default tables
+INSERT INTO tables (table_number, capacity) VALUES ('T-01', 4);
+INSERT INTO tables (table_number, capacity) VALUES ('T-02', 4);
+INSERT INTO tables (table_number, capacity) VALUES ('T-03', 2);
+INSERT INTO tables (table_number, capacity) VALUES ('T-04', 6);
+INSERT INTO tables (table_number, capacity) VALUES ('T-05', 4);
+INSERT INTO tables (table_number, capacity) VALUES ('T-06', 8);
+
 CREATE TABLE dining_sessions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     table_id UUID NOT NULL REFERENCES tables(id),
