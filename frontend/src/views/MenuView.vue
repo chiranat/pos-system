@@ -466,9 +466,28 @@ const deleteImageFile = async (fileName) => {
   }
 }
 
-const copyToClipboard = (text) => {
-  navigator.clipboard.writeText(text)
-  alert('URL copied to clipboard!')
+const copyToClipboard = async (text) => {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text)
+    } else {
+      // Fallback for non-secure contexts
+      const textArea = document.createElement("textarea")
+      textArea.value = text
+      textArea.style.position = "fixed"
+      textArea.style.left = "-9999px"
+      textArea.style.top = "0"
+      document.body.appendChild(textArea)
+      textArea.focus()
+      textArea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textArea)
+    }
+    alert('URL copied to clipboard!')
+  } catch (err) {
+    console.error('Failed to copy:', err)
+    alert('Failed to copy URL')
+  }
 }
 
 // Category Methods
