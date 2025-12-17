@@ -26,6 +26,12 @@ CREATE TABLE roles (
     name VARCHAR(50) NOT NULL UNIQUE -- 'ADMIN', 'MANAGER', 'WAITER', 'KITCHEN'
 );
 
+-- Insert default roles
+INSERT INTO roles (name) VALUES ('ADMIN');
+INSERT INTO roles (name) VALUES ('MANAGER');
+INSERT INTO roles (name) VALUES ('WAITER');
+INSERT INTO roles (name) VALUES ('KITCHEN');
+
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     username VARCHAR(50) NOT NULL UNIQUE,

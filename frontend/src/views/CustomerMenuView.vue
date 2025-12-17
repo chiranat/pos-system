@@ -65,7 +65,7 @@
       <main class="p-4 space-y-4">
         <div v-for="product in activeProducts" :key="product.id" class="bg-white rounded-xl p-3 shadow-sm border border-slate-100 flex gap-3">
           <div class="w-24 h-24 bg-slate-200 rounded-lg flex-shrink-0 overflow-hidden">
-            <img v-if="product.imageUrl" :src="product.imageUrl" class="w-full h-full object-cover" alt="">
+            <img v-if="product.imageUrl" :src="getImageUrl(product.imageUrl)" class="w-full h-full object-cover" alt="">
             <div v-else class="w-full h-full flex items-center justify-center text-slate-400">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -249,11 +249,19 @@ import { useMenuStore } from '../stores/menu'
 import { useCartStore } from '../stores/cart'
 import { useOrderStore } from '../stores/order'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
+
 const route = useRoute()
 const customerStore = useCustomerStore()
 const menuStore = useMenuStore()
 const cartStore = useCartStore()
 const orderStore = useOrderStore()
+
+const getImageUrl = (path) => {
+  if (!path) return null
+  if (path.startsWith('http') || path.startsWith('data:')) return path
+  return `${API_URL}/${path}`
+}
 
 const activeCategory = ref(null)
 const showCart = ref(false)

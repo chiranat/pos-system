@@ -146,7 +146,7 @@
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center">
                     <div class="h-10 w-10 flex-shrink-0">
-                      <img v-if="product.imageUrl" :src="product.imageUrl" class="h-10 w-10 rounded-lg object-cover bg-slate-100" alt="" />
+                      <img v-if="product.imageUrl" :src="getImageUrl(product.imageUrl)" class="h-10 w-10 rounded-lg object-cover bg-slate-100" alt="" />
                       <div v-else class="h-10 w-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -207,7 +207,7 @@
 
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           <div v-for="image in images" :key="image.name" class="group relative aspect-square bg-slate-100 rounded-xl overflow-hidden border border-slate-200">
-            <img :src="image.url" class="w-full h-full object-cover" loading="lazy">
+            <img :src="getImageUrl(image.url)" class="w-full h-full object-cover" loading="lazy">
             <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                <button @click="copyToClipboard(image.url)" class="p-2 bg-white rounded-full text-slate-700 hover:text-indigo-600" title="Copy URL">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -317,7 +317,7 @@
                     <label class="block text-sm font-medium text-slate-700 mb-1">Product Image</label>
                     <div class="mt-1 flex items-center gap-4">
                       <div v-if="productForm.imageUrl" class="relative h-20 w-20 rounded-lg overflow-hidden border border-slate-200">
-                        <img :src="productForm.imageUrl" class="h-full w-full object-cover" alt="Preview">
+                        <img :src="getImageUrl(productForm.imageUrl)" class="h-full w-full object-cover" alt="Preview">
                         <button @click="productForm.imageUrl = ''" class="absolute top-0 right-0 bg-rose-500 text-white p-0.5 rounded-bl-lg hover:bg-rose-600">
                           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -393,9 +393,16 @@
 import { ref, onMounted, reactive, watch } from 'vue'
 import { useMenuStore } from '../stores/menu'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
 const menuStore = useMenuStore()
 const activeTab = ref('categories')
 const images = ref([])
+
+const getImageUrl = (path) => {
+  if (!path) return null
+  if (path.startsWith('http') || path.startsWith('data:')) return path
+  return `${API_URL}/${path}`
+}
 
 // Category State
 const showCategoryModal = ref(false)

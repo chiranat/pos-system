@@ -24,10 +24,7 @@ public class FileUploadController {
     public ResponseEntity<Map<String, String>> uploadFile(@RequestParam("file") MultipartFile file) {
         String fileName = fileStorageService.storeFile(file);
 
-        String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("/uploads/")
-                .path(fileName)
-                .toUriString();
+        String fileDownloadUri = "uploads/" + fileName;
 
         return ResponseEntity.ok(Map.of("url", fileDownloadUri));
     }
@@ -36,10 +33,7 @@ public class FileUploadController {
     public ResponseEntity<List<Map<String, String>>> getListFiles() {
         List<String> fileNames = fileStorageService.loadAll();
         List<Map<String, String>> files = fileNames.stream().map(fileName -> {
-            String url = ServletUriComponentsBuilder.fromCurrentContextPath()
-                    .path("/uploads/")
-                    .path(fileName)
-                    .toUriString();
+            String url = "uploads/" + fileName;
             return Map.of("name", fileName, "url", url);
         }).collect(Collectors.toList());
         return ResponseEntity.ok(files);
