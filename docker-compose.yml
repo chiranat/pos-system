@@ -53,15 +53,10 @@ services:
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
       - APP_FRONTEND_URL=${FRONTEND_URL}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - JWT_EXPIRATION_MS=86400000
     volumes:
       - ./uploads:/app/uploads
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/pos_db
-      - SPRING_DATASOURCE_USERNAME=admin
-      - SPRING_DATASOURCE_PASSWORD=admin
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - JWT_SECRET=your-super-secret-key-for-pos-system-that-is-at-least-256-bits-long
-      - JWT_EXPIRATION_MS=86400000
 
   frontend:
     container_name: pos_frontend
