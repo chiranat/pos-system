@@ -68,8 +68,6 @@ services:
       - backend
     ports:
       - "5173:80"
-    environment:
-      - VITE_API_URL=${FRONTEND_URL}
 
 volumes:
   postgres_data:
