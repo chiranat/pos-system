@@ -1,6 +1,7 @@
 package com.chiranat.pos.security;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,6 +27,9 @@ public class SecurityConfig {
 
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthEntryPointJwt unauthorizedHandler;
+
+    @Value("${app.frontend.url:http://localhost:5173}")
+    private String urlFrontend;
 
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {

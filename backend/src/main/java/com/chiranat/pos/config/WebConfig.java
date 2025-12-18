@@ -23,13 +23,13 @@ public class WebConfig implements WebMvcConfigurer {
                 .addResourceLocations("file:" + uploadPath.toString() + "/");
     }
 
-    // --- ส่วนที่ต้องเพิ่มเพื่อแก้ปัญหามือถือเข้าไม่ได้ ---
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") // อนุญาตทุก Path ใน API
-                                .allowedOriginPatterns("http://localhost:[*]", "http://127.0.0.1:[*]", "http://192.168.1.[*]:[*]")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
-                .allowCredentials(true); // ถ้ามีการใช้ Cookie หรือ Header พิเศษ
-    }
+    // CORS configuration has been moved to SecurityConfig.java
+    // @Override
+    // public void addCorsMappings(CorsRegistry registry) {
+    //     registry.addMapping("/**") // อนุญาตทุก Path ใน API
+    //                             .allowedOrigins("http://localhost:5173", "http://127.0.0.1:5173", "http://172.16.52.38:5173")
+    //             .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+    //             .allowedHeaders("*")
+    //             .allowCredentials(true); // ถ้ามีการใช้ Cookie หรือ Header พิเศษ
+    // }
 }

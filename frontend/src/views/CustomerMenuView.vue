@@ -14,6 +14,11 @@
       </div>
       <h2 class="text-xl font-bold text-slate-800 mb-2">Unable to Access Menu</h2>
       <p class="text-slate-500">{{ customerStore.error }}</p>
+      <div class="mt-4 p-2 bg-gray-100 rounded text-xs text-left overflow-auto max-w-full">
+        <p><strong>Debug Info:</strong></p>
+        <p>Token: {{ $route.query.token || 'None' }}</p>
+        <p>API URL: {{ API_URL }}</p>
+      </div>
       <p class="text-sm text-slate-400 mt-4">Please scan the QR code again or contact staff.</p>
     </div>
 

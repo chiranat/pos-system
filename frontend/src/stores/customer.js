@@ -16,12 +16,16 @@ export const useCustomerStore = defineStore('customer', {
       this.loading = true
       this.error = null
       try {
+        console.log('Validating session with token:', token)
+        console.log('API URL:', API_URL)
         const response = await axios.get(`${API_URL}/api/public/customer/session/${token}`)
+        console.log('Session response:', response.data)
         this.session = response.data
         this.token = token
         localStorage.setItem('customer_token', token)
         return true
       } catch (error) {
+        console.error('Session validation error:', error)
         this.error = error.response?.data?.message || 'Invalid or expired session'
         this.session = null
         this.token = null
