@@ -53,6 +53,7 @@
             Users
           </router-link>
           <router-link 
+          v-if="['ADMIN', 'MANAGER'].includes(authStore.userRole)"
             to="/admin/reports" 
             class="inline-flex items-center px-5 py-2.5 bg-white border border-slate-300 rounded-xl shadow-sm text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
           >
@@ -62,6 +63,7 @@
             Reports
           </router-link>
           <router-link 
+            v-if="['ADMIN', 'MANAGER'].includes(authStore.userRole)"
             to="/admin/menu" 
             class="inline-flex items-center px-5 py-2.5 bg-white border border-slate-300 rounded-xl shadow-sm text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
           >
@@ -80,7 +82,7 @@
             Kitchen View
           </router-link>
           <button 
-            v-if="authStore.userRole === 'ADMIN'"
+            v-if="['ADMIN', 'MANAGER'].includes(authStore.userRole)"
             @click="openAddTableModal" 
             class="inline-flex items-center px-5 py-2.5 bg-emerald-600 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200"
           >
