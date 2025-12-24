@@ -21,13 +21,13 @@ public class TableController {
     private final TableService tableService;
 
     @GetMapping
-    @PreAuthorize("hasRole('WAITER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('WAITER') or hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<List<TableDto>> getAllTables() {
         return ResponseEntity.ok(tableService.getAllTables());
     }
 
     @GetMapping("/{id}/details")
-    @PreAuthorize("hasRole('WAITER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('WAITER') or hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<TableDetailDto> getTableDetails(@PathVariable UUID id) {
         return ResponseEntity.ok(tableService.getTableDetails(id));
     }
@@ -38,14 +38,27 @@ public class TableController {
         return ResponseEntity.ok(tableService.createTable(tableDto));
     }
 
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<TableDto> updateTable(@PathVariable UUID id, @RequestBody TableDto tableDto) {
+        return ResponseEntity.ok(tableService.updateTable(id, tableDto));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteTable(@PathVariable UUID id) {
+        tableService.deleteTable(id);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/{id}/open")
-    @PreAuthorize("hasRole('WAITER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('WAITER') or hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<DiningSessionDto> openTable(@PathVariable UUID id, @RequestBody OpenTableRequest request) {
         return ResponseEntity.ok(tableService.openTable(id, request));
     }
 
     @PostMapping("/{id}/close")
-    @PreAuthorize("hasRole('WAITER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('WAITER') or hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<Void> closeTable(@PathVariable UUID id) {
         tableService.closeTable(id);
         return ResponseEntity.ok().build();

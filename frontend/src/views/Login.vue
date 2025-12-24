@@ -57,7 +57,11 @@ const password = ref('')
 const handleLogin = async () => {
   const success = await authStore.login(username.value, password.value)
   if (success) {
-    router.push('/')
+    if (authStore.userRole === 'KITCHEN') {
+      router.push('/kitchen')
+    } else {
+      router.push('/')
+    }
   }
 }
 </script>

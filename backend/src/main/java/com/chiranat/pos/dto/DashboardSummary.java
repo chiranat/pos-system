@@ -16,4 +16,6 @@ public class DashboardSummary {
     private Map<String, BigDecimal> salesByPaymentMethod;
     private List<TopSellingItem> topSellingItems;
     private List<Transaction> recentTransactions;
+    private List<SalesTrendDto> salesTrend;
+    private List<TableUsageDto> tableUsageStats;
 }

@@ -19,7 +19,7 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     @PostMapping("/payment/{tableId}")
-    @PreAuthorize("hasRole('WAITER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('WAITER') or hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<Transaction> processPayment(@PathVariable UUID tableId, @RequestBody PaymentRequest request) {
         return ResponseEntity.ok(transactionService.processPayment(tableId, request));
     }

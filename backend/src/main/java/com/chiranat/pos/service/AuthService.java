@@ -37,6 +37,11 @@ public class AuthService {
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String role = userDetails.getAuthorities().stream().findFirst().get().getAuthority();
+        
+        // Remove ROLE_ prefix if present
+        if (role.startsWith("ROLE_")) {
+            role = role.substring(5);
+        }
 
         return new AuthResponse(jwt, userDetails.getUsername(), role);
     }

@@ -43,6 +43,16 @@
         </div>
         <div class="flex gap-3">
           <router-link 
+            v-if="['ADMIN', 'MANAGER'].includes(authStore.userRole)"
+            to="/admin/users" 
+            class="inline-flex items-center px-5 py-2.5 bg-white border border-slate-300 rounded-xl shadow-sm text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            Users
+          </router-link>
+          <router-link 
             to="/admin/reports" 
             class="inline-flex items-center px-5 py-2.5 bg-white border border-slate-300 rounded-xl shadow-sm text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
           >
@@ -69,6 +79,16 @@
             </svg>
             Kitchen View
           </router-link>
+          <button 
+            v-if="authStore.userRole === 'ROLE_ADMIN'"
+            @click="openAddTableModal" 
+            class="inline-flex items-center px-5 py-2.5 bg-emerald-600 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Add Table
+          </button>
           <button 
             @click="tableStore.fetchTables()" 
             class="group inline-flex items-center px-5 py-2.5 bg-white border border-slate-200 rounded-xl shadow-sm text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
@@ -141,6 +161,7 @@
           :key="table.id" 
           :table="table"
           @click="handleTableClick(table)"
+          @edit="openEditTableModal"
         />
       </div>
     </main>
@@ -364,11 +385,64 @@
       :receipt="currentReceipt" 
       @close="showReceiptModal = false" 
     />
+
+    <!-- Table Form Modal -->
+    <Modal :isOpen="showTableFormModal" :title="editingTable ? 'Edit Table' : 'Add Table'" @close="showTableFormModal = false">
+      <div class="mt-2 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Table Number</label>
+          <input 
+            type="text" 
+            v-model="tableForm.tableNumber" 
+            class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
+            placeholder="e.g. T-01"
+          >
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Capacity</label>
+          <input 
+            type="number" 
+            v-model="tableForm.capacity" 
+            min="1"
+            class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
+            placeholder="Number of seats"
+          >
+        </div>
+      </div>
+      <template #footer>
+        <div class="flex justify-between w-full">
+          <button 
+            v-if="editingTable"
+            type="button" 
+            class="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-rose-600 text-base font-medium text-white hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 sm:text-sm"
+            @click="deleteTable"
+          >
+            Delete
+          </button>
+          <div class="flex gap-3 ml-auto">
+            <button 
+              type="button" 
+              class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
+              @click="showTableFormModal = false"
+            >
+              Cancel
+            </button>
+            <button 
+              type="button" 
+              class="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
+              @click="saveTable"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </template>
+    </Modal>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, reactive } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import { useTableStore } from '../stores/table'
 import { useRouter } from 'vue-router'
@@ -510,6 +584,56 @@ const copyToClipboard = async (text) => {
   } catch (err) {
     console.error('Failed to copy:', err)
     alert('Failed to copy URL')
+  }
+}
+
+// Table Management
+const showTableFormModal = ref(false)
+const editingTable = ref(null)
+const tableForm = reactive({
+  tableNumber: '',
+  capacity: 4
+})
+
+const openAddTableModal = () => {
+  editingTable.value = null
+  tableForm.tableNumber = ''
+  tableForm.capacity = 4
+  showTableFormModal.value = true
+}
+
+const openEditTableModal = (table) => {
+  editingTable.value = table
+  tableForm.tableNumber = table.tableNumber
+  tableForm.capacity = table.capacity
+  showTableFormModal.value = true
+}
+
+const saveTable = async () => {
+  try {
+    if (editingTable.value) {
+      await tableStore.updateTable(editingTable.value.id, tableForm)
+    } else {
+      await tableStore.createTable(tableForm)
+    }
+    showTableFormModal.value = false
+    await tableStore.fetchTables()
+  } catch (error) {
+    console.error('Failed to save table:', error)
+    alert('Failed to save table')
+  }
+}
+
+const deleteTable = async () => {
+  if (!editingTable.value) return
+  if (!confirm(`Are you sure you want to delete Table ${editingTable.value.tableNumber}?`)) return
+
+  try {
+    await tableStore.deleteTable(editingTable.value.id)
+    showTableFormModal.value = false
+  } catch (error) {
+    console.error('Failed to delete table:', error)
+    alert('Failed to delete table')
   }
 }
 </script>

@@ -6,7 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -17,6 +19,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @Entity
 @Table(name = "tables")
+@SQLDelete(sql = "UPDATE tables SET deleted = true WHERE id = ?")
+@Where(clause = "deleted = false")
 public class TableEntity {
 
     @Id
@@ -36,6 +40,10 @@ public class TableEntity {
     @Column(name = "status", length = 20)
     @Builder.Default
     private TableStatus status = TableStatus.AVAILABLE;
+
+    @Column(name = "deleted", nullable = false)
+    @Builder.Default
+    private boolean deleted = false;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

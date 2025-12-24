@@ -44,6 +44,12 @@ const router = createRouter({
       name: 'admin-reports',
       component: () => import('../views/DashboardView.vue'),
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/admin/users',
+      name: 'admin-users',
+      component: () => import('../views/UserManagementView.vue'),
+      meta: { requiresAuth: true }
     }
   ]
 })
@@ -53,9 +59,30 @@ router.beforeEach((to, from, next) => {
   
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next('/login')
-  } else {
-    next()
+    return
   }
+
+  if (authStore.isAuthenticated) {
+    const role = authStore.userRole
+
+    // Kitchen Role Restrictions
+    if (role === 'KITCHEN') {
+      if (to.path !== '/kitchen' && to.path !== '/login') {
+        next('/kitchen')
+        return
+      }
+    }
+    
+    // Waiter Role Restrictions (cannot access admin pages)
+    if (role === 'WAITER') {
+      if (to.path.startsWith('/admin')) {
+        next('/')
+        return
+      }
+    }
+  }
+
+  next()
 })
 
 export default router

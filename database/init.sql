@@ -52,6 +52,7 @@ CREATE TABLE tables (
     table_number VARCHAR(50) NOT NULL UNIQUE, -- เช่น 'T-01', 'T-02'
     capacity INTEGER NOT NULL DEFAULT 4,
     status VARCHAR(20) DEFAULT 'AVAILABLE' CHECK (status IN ('AVAILABLE', 'OCCUPIED')),
+    deleted BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

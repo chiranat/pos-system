@@ -50,6 +50,31 @@ public class TableService {
         return mapToDto(tableRepository.save(table));
     }
 
+    public TableDto updateTable(UUID id, TableDto tableDto) {
+        TableEntity table = tableRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Table not found"));
+        
+        table.setTableNumber(tableDto.getTableNumber());
+        table.setCapacity(tableDto.getCapacity());
+        
+        return mapToDto(tableRepository.save(table));
+    }
+
+    public void deleteTable(UUID id) {
+        TableEntity table = tableRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Table not found"));
+
+        if (table.getStatus() == TableEntity.TableStatus.OCCUPIED) {
+            throw new IllegalStateException("Cannot delete an occupied table. Please close the session first.");
+        }
+
+        // Rename table number to allow reuse of the name
+        table.setTableNumber(table.getTableNumber() + "_DELETED_" + System.currentTimeMillis());
+        tableRepository.save(table);
+        
+        tableRepository.deleteById(id);
+    }
+
     @Transactional
     public DiningSessionDto openTable(UUID tableId, OpenTableRequest request) {
         TableEntity table = tableRepository.findById(tableId)

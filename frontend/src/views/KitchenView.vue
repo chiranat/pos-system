@@ -9,17 +9,26 @@
         <button 
           @click="kitchenStore.fetchActiveOrders()" 
           class="p-2 bg-white rounded-lg shadow-sm hover:bg-slate-50 text-slate-600"
+          title="Refresh"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
         </button>
         <router-link 
+          v-if="authStore.userRole !== 'KITCHEN'"
           to="/" 
           class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300 transition-colors"
         >
           Back to Tables
         </router-link>
+        <button 
+          v-if="authStore.userRole === 'KITCHEN'"
+          @click="handleLogout"
+          class="px-4 py-2 bg-rose-100 text-rose-700 rounded-lg font-medium hover:bg-rose-200 transition-colors"
+        >
+          Logout
+        </button>
       </div>
     </header>
 
@@ -102,14 +111,23 @@
 <script setup>
 import { onMounted, onUnmounted } from 'vue'
 import { useKitchenStore } from '../stores/kitchen'
+import { useAuthStore } from '../stores/auth'
+import { useRouter } from 'vue-router'
 
 const kitchenStore = useKitchenStore()
+const authStore = useAuthStore()
+const router = useRouter()
 let pollInterval
 
 const formatTime = (dateString) => {
   if (!dateString) return ''
   const date = new Date(dateString)
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
+
+const handleLogout = () => {
+  authStore.logout()
+  router.push('/login')
 }
 
 onMounted(() => {

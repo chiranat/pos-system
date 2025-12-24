@@ -88,6 +88,12 @@
           >
             Generate Report
           </button>
+          <button 
+            @click="downloadPDF"
+            class="px-4 py-2 bg-white text-indigo-600 border border-indigo-200 text-sm font-medium rounded-lg hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-sm"
+          >
+            Export PDF
+          </button>
         </div>
       </div>
 
@@ -95,7 +101,7 @@
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
       </div>
 
-      <div v-else-if="reportStore.summary" class="space-y-6">
+      <div v-else-if="reportStore.summary" id="report-content" class="space-y-6">
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <!-- Total Sales -->
@@ -155,6 +161,21 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Sales Trend Chart -->
+          <div class="bg-white shadow-sm rounded-2xl border border-slate-200 p-6">
+            <h3 class="text-lg font-bold text-slate-900 mb-4">Sales Trend</h3>
+            <SalesChart :data="reportStore.summary.salesTrend || []" />
+          </div>
+
+          <!-- Table Usage Chart -->
+          <div class="bg-white shadow-sm rounded-2xl border border-slate-200 p-6">
+            <h3 class="text-lg font-bold text-slate-900 mb-4">Table Usage Statistics</h3>
+            <TableUsageChart :data="reportStore.summary.tableUsageStats || []" />
           </div>
         </div>
 
@@ -271,7 +292,10 @@
 import { ref, onMounted, computed } from 'vue'
 import { useReportStore } from '../stores/report'
 import ReceiptModal from '../components/ReceiptModal.vue'
+import SalesChart from '../components/SalesChart.vue'
+import TableUsageChart from '../components/TableUsageChart.vue'
 import axios from 'axios'
+import html2pdf from 'html2pdf.js'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080'
 const reportStore = useReportStore()
@@ -317,6 +341,32 @@ const loadReport = () => {
   }
   
   reportStore.fetchReportSummary(start, end)
+}
+
+const downloadPDF = async () => {
+  const element = document.getElementById('report-content')
+  if (!element) {
+    alert('No report content to export. Please generate a report first.')
+    return
+  }
+
+  // Small delay to ensure rendering
+  await new Promise(resolve => setTimeout(resolve, 100))
+
+  const opt = {
+    margin: 0.5,
+    filename: `sales-report-${new Date().toISOString().split('T')[0]}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true, logging: true },
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+  }
+  
+  try {
+    await html2pdf().set(opt).from(element).save()
+  } catch (err) {
+    console.error('PDF Export failed:', err)
+    alert('Failed to export PDF: ' + (err.message || err))
+  }
 }
 
 const viewReceipt = async (transaction) => {

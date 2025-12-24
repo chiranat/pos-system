@@ -23,6 +23,41 @@ export const useTableStore = defineStore('table', {
       }
     },
 
+    async createTable(tableData) {
+      try {
+        const response = await axios.post(`${API_URL}/api/tables`, tableData)
+        this.tables.push(response.data)
+        return response.data
+      } catch (err) {
+        this.error = err.response?.data?.message || 'Failed to create table'
+        throw err
+      }
+    },
+
+    async updateTable(id, tableData) {
+      try {
+        const response = await axios.put(`${API_URL}/api/tables/${id}`, tableData)
+        const index = this.tables.findIndex(t => t.id === id)
+        if (index !== -1) {
+          this.tables[index] = response.data
+        }
+        return response.data
+      } catch (err) {
+        this.error = err.response?.data?.message || 'Failed to update table'
+        throw err
+      }
+    },
+
+    async deleteTable(id) {
+      try {
+        await axios.delete(`${API_URL}/api/tables/${id}`)
+        this.tables = this.tables.filter(t => t.id !== id)
+      } catch (err) {
+        this.error = err.response?.data?.message || 'Failed to delete table'
+        throw err
+      }
+    },
+
     async openTable(tableId, customerCount) {
       try {
         const response = await axios.post(`${API_URL}/api/tables/${tableId}/open`, {
