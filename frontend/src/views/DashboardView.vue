@@ -101,9 +101,22 @@
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
       </div>
 
-      <div v-else-if="reportStore.summary" id="report-content" class="space-y-6">
+      <div v-else-if="reportStore.summary" id="report-content" class="space-y-6 p-4">
+        <!-- Report Header for PDF -->
+        <div class="mb-6 border-b border-slate-200 pb-4">
+          <h2 class="text-2xl font-bold text-slate-900">Sales Report</h2>
+          <p class="text-slate-500">
+            Period: 
+            <span v-if="reportType === 'DAILY'">{{ selectedDate }}</span>
+            <span v-else-if="reportType === 'MONTHLY'">{{ selectedMonth }}</span>
+            <span v-else-if="reportType === 'YEARLY'">{{ selectedYear }}</span>
+            <span v-else>{{ customStartDate }} to {{ customEndDate }}</span>
+          </p>
+          <p class="text-xs text-slate-400 mt-1">Generated: {{ new Date().toLocaleString() }}</p>
+        </div>
+
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 break-inside-avoid">
           <!-- Total Sales -->
           <div class="bg-white overflow-hidden shadow-sm rounded-2xl border border-slate-100">
             <div class="p-6">
@@ -165,7 +178,7 @@
         </div>
 
         <!-- Charts Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 break-inside-avoid">
           <!-- Sales Trend Chart -->
           <div class="bg-white shadow-sm rounded-2xl border border-slate-200 p-6">
             <h3 class="text-lg font-bold text-slate-900 mb-4">Sales Trend</h3>
@@ -179,7 +192,7 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 break-inside-avoid">
           <!-- Payment Methods Breakdown -->
           <div class="bg-white shadow-sm rounded-2xl border border-slate-200 p-6">
             <h3 class="text-lg font-bold text-slate-900 mb-4">Sales by Payment Method</h3>
@@ -354,11 +367,12 @@ const downloadPDF = async () => {
   await new Promise(resolve => setTimeout(resolve, 100))
 
   const opt = {
-    margin: 0.5,
+    margin: [0.5, 0.5],
     filename: `sales-report-${new Date().toISOString().split('T')[0]}.pdf`,
     image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, logging: true },
-    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+    html2canvas: { scale: 2, useCORS: true, logging: true, letterRendering: true, windowWidth: 1280 },
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
   }
   
   try {
