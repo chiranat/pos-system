@@ -33,19 +33,19 @@ public class TableController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<TableDto> createTable(@RequestBody TableDto tableDto) {
         return ResponseEntity.ok(tableService.createTable(tableDto));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<TableDto> updateTable(@PathVariable UUID id, @RequestBody TableDto tableDto) {
         return ResponseEntity.ok(tableService.updateTable(id, tableDto));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<Void> deleteTable(@PathVariable UUID id) {
         tableService.deleteTable(id);
         return ResponseEntity.ok().build();
