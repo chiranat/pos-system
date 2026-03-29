@@ -43,6 +43,51 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Insert default users
+INSERT INTO users (username, password_hash, first_name, last_name, role_id, is_active)
+SELECT
+    'admin',
+    '$2a$10$dYzKDPv2ojnaHBdoqcM5/.KwOdcIzACf1lfLTb0rcfOjvpqxDc/9C',
+    'user',
+    'admin',
+    id,
+    TRUE
+FROM roles
+WHERE name = 'ADMIN';
+
+INSERT INTO users (username, password_hash, first_name, last_name, role_id, is_active)
+SELECT
+    'waiter',
+    '$2a$10$oaDAqsbnUMEPikw5zoCO/O0PUhA7dMpB5bMn.ggkj9z.EM5U5Gq2q',
+    'user',
+    'waiter',
+    id,
+    TRUE
+FROM roles
+WHERE name = 'WAITER';
+
+INSERT INTO users (username, password_hash, first_name, last_name, role_id, is_active)
+SELECT
+    'manager',
+    '$2a$10$EjANEv0i9dwF86Gl.nCdRu/UpD7yGb0ihKpmqRcsjuaQXmlAVyiNy',
+    'user',
+    'manager',
+    id,
+    TRUE
+FROM roles
+WHERE name = 'MANAGER';
+
+INSERT INTO users (username, password_hash, first_name, last_name, role_id, is_active)
+SELECT
+    'kitchen',
+    '$2a$10$fahkpinFAKbQ3UTB3XKZyOQlcw0jlM1fEtSdxBMxNHXT5ejVz1KF.',
+    'user',
+    'kitchen',
+    id,
+    TRUE
+FROM roles
+WHERE name = 'KITCHEN';
+
 -- ==========================================
 -- 1. CORE & LOCATION (จัดการพื้นที่และ Session)
 -- ==========================================
@@ -95,6 +140,42 @@ CREATE TABLE products (
     is_available BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Insert default categories
+INSERT INTO categories (name, sort_order) VALUES
+('Shabu Sets', 1),
+('Meat & Pork', 2),
+('Vegetables', 3),
+('Drinks', 4);
+
+-- Insert default products
+-- Shabu Sets
+INSERT INTO products (category_id, name, description, price, image_url, is_available)
+SELECT id, 'Premium Beef Set', 'Wagyu beef, vegetables, and egg', 599.00, 'https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&w=500&q=60', TRUE
+FROM categories WHERE name = 'Shabu Sets';
+
+INSERT INTO products (category_id, name, description, price, image_url, is_available)
+SELECT id, 'Pork Set', 'Kurobuta pork, vegetables, and egg', 399.00, 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=500&q=60', TRUE
+FROM categories WHERE name = 'Shabu Sets';
+
+-- Meat
+INSERT INTO products (category_id, name, description, price, image_url, is_available)
+SELECT id, 'Sliced Wagyu Beef', 'Premium A4 Wagyu', 299.00, 'https://images.unsplash.com/photo-1615937657715-bc7b4b7962c1?auto=format&fit=crop&w=500&q=60', TRUE
+FROM categories WHERE name = 'Meat & Pork';
+
+INSERT INTO products (category_id, name, description, price, image_url, is_available)
+SELECT id, 'Sliced Pork Belly', 'Thinly sliced pork belly', 129.00, 'https://images.unsplash.com/photo-1615937691194-97dbd3f3dc29?auto=format&fit=crop&w=500&q=60', TRUE
+FROM categories WHERE name = 'Meat & Pork';
+
+-- Vegetables
+INSERT INTO products (category_id, name, description, price, image_url, is_available)
+SELECT id, 'Mixed Vegetable Set', 'Cabbage, Morning Glory, Corn, Mushroom', 89.00, 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=500&q=60', TRUE
+FROM categories WHERE name = 'Vegetables';
+
+-- Drinks
+INSERT INTO products (category_id, name, description, price, image_url, is_available)
+SELECT id, 'Coke', 'Can 325ml', 25.00, 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=500&q=60', TRUE
+FROM categories WHERE name = 'Drinks';
 
 -- ==========================================
 -- 3. ORDERING (การสั่งอาหาร)
