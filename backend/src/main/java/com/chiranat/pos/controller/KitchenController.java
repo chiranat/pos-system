@@ -18,13 +18,13 @@ public class KitchenController {
     private final OrderService orderService;
 
     @GetMapping("/active")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or hasRole('WAITER') or hasRole('KITCHEN')")
     public ResponseEntity<List<Order>> getActiveOrders() {
         return ResponseEntity.ok(orderService.getAllActiveOrders());
     }
 
     @PutMapping("/{id}/status")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or hasRole('WAITER') or hasRole('KITCHEN')")
     public ResponseEntity<Order> updateStatus(@PathVariable UUID id, @RequestBody Order.OrderStatus status) {
         return ResponseEntity.ok(orderService.updateOrderStatus(id, status));
     }
